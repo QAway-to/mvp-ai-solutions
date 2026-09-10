@@ -1,0 +1,141 @@
+---
+import { finalCta } from '../content/offer';
+import { site } from '../config/site';
+---
+
+<section id="lead" class="section">
+  <div class="shell">
+    <div class="grid gap-10 lg:grid-cols-2 lg:gap-16">
+      <div>
+        <p class="t-eyebrow text-ink-mute">Заявка</p>
+        <h2 class="t-display-xl text-ink mt-3">{finalCta.title}</h2>
+        <p class="t-body-lg text-ink-secondary mt-5 max-w-xl">{finalCta.lead}</p>
+
+        <p class="text-ink-mute mt-8">
+          Не любите формы — напишите напрямую:
+          <a class="text-primary" href={site.telegram} rel="noopener">{site.telegramLabel}</a>
+        </p>
+      </div>
+
+      <div class="card">
+        <form id="lead-form" novalidate>
+          <div class="flex flex-col gap-4">
+            <label class="flex flex-col gap-1.5">
+              <span class="t-caption text-ink-secondary">Как к вам обращаться</span>
+              <input class="field" type="text" name="name" required maxlength="80" autocomplete="name" placeholder="Имя" />
+            </label>
+
+            <label class="flex flex-col gap-1.5">
+              <span class="t-caption text-ink-secondary">Telegram, телефон или почта</span>
+              <input class="field" type="text" name="contact" required maxlength="120" placeholder="@username" />
+            </label>
+
+            <label class="flex flex-col gap-1.5">
+              <span class="t-caption text-ink-secondary">Что за бизнес и что болит</span>
+              <textarea
+                class="field min-h-28"
+                name="message"
+                rows="4"
+                maxlength="1500"
+                placeholder="Пара предложений — этого достаточно"></textarea>
+            </label>
+
+            <!--
+              Ловушка для ботов: поле спрятано от людей, но видно автозаполнялкам.
+              Заполнено — заявка молча отбрасывается на сервере.
+            -->
+            <div class="hidden" aria-hidden="true">
+              <label>
+                Компания
+                <input type="text" name="company" tabindex="-1" autocomplete="off" />
+              </label>
+            </div>
+
+            <button class="btn btn-primary mt-2 w-full" type="submit" data-submit>
+              {finalCta.submit}
+            </button>
+
+            <p class="t-caption text-ink-mute" role="status" data-form-status></p>
+            <p class="t-caption text-ink-mute">{finalCta.privacy}</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Отправка идёт на собственный /api/lead, а не в Telegram напрямую:
+  // токен бота живёт только на сервере (см. server.mjs).
+  const form = document.getElementById('lead-form') as HTMLFormElement | null;
+
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-form-status]');
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]');
+    const submitLabel = submit?.textContent ?? '';
+
+    const say = (text: string, isError: boolean) => {
+      if (!status) return;
+      status.textContent = text;
+      status.style.color = isError ? 'var(--color-ruby)' : 'var(--color-primary-deep)';
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const data = new FormData(form);
+      const name = String(data.get('name') ?? '').trim();
+      const contact = String(data.get('contact') ?? '').trim();
+
+      if (!name || !contact) {
+        say('Заполните имя и контакт — иначе не сможем ответить.', true);
+        return;
+      }
+
+      if (submit) {
+        submit.disabled = true;
+        submit.textContent = 'Отправляем…';
+      }
+      say('', false);
+
+      try {
+        const response = await fetch('/api/lead', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          // Без таймаута зависший запрос оставляет кнопку заблокированной
+          // навсегда: блок finally не выполнится, пока браузер сам не сдастся.
+          signal: AbortSignal.timeout(15000),
+          body: JSON.stringify({
+            name,
+            contact,
+            message: String(data.get('message') ?? '').trim(),
+            company: String(data.get('company') ?? ''),
+            // Метки рекламной кампании: без них непонятно, какой источник
+            // приносит заявки, а какой только жжёт бюджет.
+            source: window.location.pathname + window.location.search,
+            referrer: document.referrer,
+          }),
+        });
+
+        // Слишком частая отправка — единственный случай, где посетителю
+        // стоит объяснить причину: иначе он будет жать кнопку ещё и ещё.
+        if (response.status === 429) {
+          say('Слишком много заявок подряд. Попробуйте через несколько минут.', true);
+          return;
+        }
+
+        if (!response.ok) throw new Error(String(response.status));
+
+        form.reset();
+        say('Заявка ушла. Ответим в течение рабочего дня.', false);
+      } catch {
+        say('Не отправилось. Напишите в Telegram — так точно дойдёт.', true);
+      } finally {
+        if (submit) {
+          submit.disabled = false;
+          submit.textContent = submitLabel;
+        }
+      }
+    });
+  }
+</script>

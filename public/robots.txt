@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Адрес меняется вместе с PUBLIC_SITE_URL в переменных окружения Render.
+Sitemap: https://mvp-ai-solutions.onrender.com/sitemap-index.xml

@@ -1,0 +1,279 @@
+@import 'tailwindcss';
+
+/*
+ * Дизайн-система: Stripe (design-md/stripe/DESIGN.md из VoltAgent/awesome-design-md).
+ *
+ * Три вещи, которые делают этот стиль узнаваемым, и их нельзя «упростить»:
+ *   1. Градиентный меш в верхней трети экрана — не плоский CSS-градиент,
+ *      а размытые органические пятна (см. GradientMesh.astro).
+ *   2. Заголовки весом 300 с отрицательным трекингом. На 400 вся «воздушность»
+ *      макета схлопывается.
+ *   3. Индиго — цвет только для CTA и ссылок. Одна залитая кнопка на секцию.
+ */
+
+@theme {
+  /* Бренд и акценты */
+  --color-primary: #533afd;
+  --color-primary-deep: #4434d4;
+  --color-primary-press: #2e2b8c;
+  --color-primary-soft: #665efd;
+  --color-primary-subdued: #b9b9f9;
+  --color-brand-dark: #1c1e54;
+  --color-ruby: #ea2261;
+  --color-magenta: #f96bee;
+  --color-lemon: #9b6829;
+
+  /* Поверхности */
+  --color-canvas: #ffffff;
+  --color-canvas-soft: #f6f9fc;
+  --color-canvas-cream: #f5e9d4;
+  --color-hairline: #e3e8ee;
+  --color-hairline-input: #a8c3de;
+
+  /* Текст. Тёмно-синий вместо чёрного — это тоже часть системы. */
+  --color-ink: #0d253d;
+  --color-ink-secondary: #273951;
+  --color-ink-mute: #64748d;
+
+  --font-sans:
+    'Inter Variable', 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+
+  /* Тени приглушённые и синие: система держит глубину цветом, а не тенью. */
+  --shadow-lift: 0 1px 3px rgba(0, 55, 112, 0.08);
+  --shadow-panel: 0 8px 24px rgba(0, 55, 112, 0.08), 0 2px 6px rgba(0, 55, 112, 0.04);
+
+  --radius-card: 12px;
+  --radius-panel: 16px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Липкая шапка не должна накрывать заголовок секции при переходе по якорю. */
+    scroll-padding-top: 88px;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 1.4;
+    /* ss01 включается глобально — это часть типографики бренда. */
+    font-feature-settings: 'ss01';
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-primary-subdued);
+    color: var(--color-primary-press);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Типографика. Размеры «шагают» вниз по брейкпоинтам через clamp,
+     трекинг сжимается пропорционально кеглю. */
+  .t-display-xxl {
+    font-size: clamp(36px, 6.2vw, 56px);
+    font-weight: 300;
+    line-height: 1.03;
+    letter-spacing: -0.025em;
+  }
+
+  .t-display-xl {
+    font-size: clamp(30px, 4.6vw, 48px);
+    font-weight: 300;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .t-display-lg {
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .t-display-md {
+    font-size: clamp(22px, 2.4vw, 26px);
+    font-weight: 300;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+  }
+
+  .t-heading-lg {
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .t-heading-sm {
+    font-size: 18px;
+    font-weight: 300;
+    line-height: 1.4;
+  }
+
+  .t-body-lg {
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.5;
+  }
+
+  .t-caption {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: -0.03em;
+    font-feature-settings: 'tnum', 'ss01';
+  }
+
+  .t-eyebrow {
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Табличные цифры — на всём, где деньги, сроки и счётчики. */
+  .t-num {
+    font-feature-settings: 'tnum', 'ss01';
+    letter-spacing: -0.03em;
+  }
+
+  /* Кнопки. Пилюля с тесным паддингом 8/16 — форма из системы;
+     на мобильном паддинг растёт до 44px по высоте под палец. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+    text-align: center;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-canvas);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-primary-deep);
+  }
+
+  .btn-primary:active {
+    background-color: var(--color-primary-press);
+  }
+
+  .btn-secondary {
+    background-color: var(--color-canvas);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+  }
+
+  .btn-secondary:hover {
+    background-color: color-mix(in srgb, var(--color-primary) 6%, white);
+  }
+
+  .btn-on-dark {
+    background-color: var(--color-canvas);
+    color: var(--color-brand-dark);
+  }
+
+  .btn-on-dark:hover {
+    background-color: var(--color-canvas-soft);
+  }
+
+  /* Карточки */
+  .card {
+    background-color: var(--color-canvas);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-card);
+    padding: 32px;
+  }
+
+  .card-cream {
+    background-color: var(--color-canvas-cream);
+    border-radius: var(--radius-card);
+    padding: 32px;
+  }
+
+  .card-dark {
+    background-color: var(--color-brand-dark);
+    color: var(--color-canvas);
+    border-radius: var(--radius-card);
+    padding: 32px;
+  }
+
+  .pill-tag {
+    display: inline-block;
+    background-color: var(--color-primary-subdued);
+    color: var(--color-primary-deep);
+    border-radius: 9999px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .field {
+    width: 100%;
+    min-height: 44px;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    border: 1px solid var(--color-hairline-input);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  .field::placeholder {
+    color: var(--color-ink-mute);
+  }
+
+  .field:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+  }
+
+  /* Контейнер и вертикальный ритм секций (64–96px по системе). */
+  .shell {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+
+  .section {
+    padding-block: clamp(56px, 8vw, 96px);
+  }
+}

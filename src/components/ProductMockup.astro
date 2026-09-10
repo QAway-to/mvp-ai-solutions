@@ -1,0 +1,179 @@
+---
+/**
+ * Композит из фальшивого продуктового интерфейса — приём дизайн-системы:
+ * вместо фотостока и абстрактных «нейросетей» показывается то, чем человек
+ * будет пользоваться. Слева диалог бота, в центре таблица заявок, справа сводка.
+ *
+ * Панели свёрстаны разметкой, а не картинкой: текст остаётся текстом, ничего
+ * не размывается на ретине и не тянет лишний запрос. На мобильном боковые
+ * панели скрываются — по системе композит там сворачивается до одной.
+ *
+ * Цифры здесь — иллюстрация интерфейса, а не результаты клиентов, поэтому
+ * они намеренно нейтральные. Не переносить их в текст лендинга как обещания.
+ */
+const dialog = [
+  { from: 'client', text: 'Здравствуйте! Доставка в регионы есть?' },
+  { from: 'bot', text: 'Да, доставляем — 2–3 дня. Подсказать по наличию?' },
+  { from: 'client', text: 'Нужно 20 штук на склад' },
+  { from: 'bot', text: 'Это опт — передаю менеджеру, он ответит в течение часа.' },
+];
+
+const rows = [
+  { source: 'Telegram', task: 'Опт, 20 шт', status: 'Менеджеру', amount: '38 000' },
+  { source: 'Сайт', task: 'Расчёт стоимости', status: 'Отвечено', amount: '4 500' },
+  { source: 'WhatsApp', task: 'Статус заказа', status: 'Закрыто', amount: '—' },
+  { source: 'Telegram', task: 'Реквизиты', status: 'Закрыто', amount: '—' },
+];
+---
+
+<div class="grid gap-4 lg:grid-cols-12">
+  <!-- Диалог: единственная панель, которая остаётся на мобильном. -->
+  <div class="panel lg:col-span-4">
+    <div class="panel-head">
+      <span class="dot bg-primary"></span>
+      Бот поддержки
+    </div>
+
+    <div class="flex flex-col gap-2 p-4">
+      {
+        dialog.map((line) => (
+          <p class={`bubble ${line.from === 'bot' ? 'bubble-bot' : 'bubble-client'}`}>
+            {line.text}
+          </p>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="panel hidden lg:col-span-5 lg:block">
+    <div class="panel-head">
+      <span class="dot bg-ruby"></span>
+      Заявки за сегодня
+    </div>
+
+    <table class="w-full">
+      <thead>
+        <tr class="text-ink-mute">
+          <th class="cell text-left font-normal">Канал</th>
+          <th class="cell text-left font-normal">Запрос</th>
+          <th class="cell text-left font-normal">Статус</th>
+          <th class="cell text-right font-normal">Сумма</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row) => (
+            <tr class="border-hairline border-t">
+              <td class="cell">{row.source}</td>
+              <td class="cell">{row.task}</td>
+              <td class="cell">
+                <span class="status">{row.status}</span>
+              </td>
+              <td class="cell t-num text-right">{row.amount}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="hidden flex-col gap-4 lg:col-span-3 lg:flex">
+    <div class="panel flex-1 p-5">
+      <p class="t-eyebrow text-ink-mute">Обработано ботом</p>
+      <p class="t-num text-ink mt-2 text-4xl font-light">82%</p>
+      <p class="t-caption text-ink-mute mt-1">без участия менеджера</p>
+
+      <div class="mt-5 flex h-16 items-end gap-1.5" aria-hidden="true">
+        <span class="bar" style="height: 38%"></span>
+        <span class="bar" style="height: 52%"></span>
+        <span class="bar" style="height: 45%"></span>
+        <span class="bar" style="height: 68%"></span>
+        <span class="bar" style="height: 74%"></span>
+        <span class="bar bar-strong" style="height: 92%"></span>
+      </div>
+    </div>
+
+    <div class="card-dark p-5">
+      <p class="t-eyebrow opacity-70">Среднее время ответа</p>
+      <p class="t-num mt-2 text-4xl font-light">4 сек</p>
+      <p class="t-caption mt-1 opacity-70">круглосуточно</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .panel {
+    background-color: var(--color-canvas);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-panel);
+    overflow: hidden;
+  }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    color: var(--color-ink-mute);
+    font-size: 13px;
+    letter-spacing: -0.03em;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+  }
+
+  .bubble {
+    max-width: 88%;
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .bubble-client {
+    align-self: flex-start;
+    background-color: var(--color-canvas-soft);
+    color: var(--color-ink-secondary);
+    border-bottom-left-radius: 4px;
+  }
+
+  .bubble-bot {
+    align-self: flex-end;
+    background-color: var(--color-primary);
+    color: var(--color-canvas);
+    border-bottom-right-radius: 4px;
+  }
+
+  /* Табличные цифры на всём числовом — тихая подпись дизайн-системы. */
+  .cell {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-feature-settings: 'tnum', 'ss01';
+    letter-spacing: -0.03em;
+  }
+
+  .status {
+    display: inline-block;
+    border-radius: 9999px;
+    background-color: var(--color-primary-subdued);
+    color: var(--color-primary-press);
+    padding: 2px 8px;
+    font-size: 11px;
+  }
+
+  .bar {
+    flex: 1;
+    border-radius: 3px;
+    background-color: var(--color-primary-subdued);
+  }
+
+  .bar-strong {
+    background-color: var(--color-primary);
+  }
+</style>

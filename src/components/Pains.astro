@@ -1,0 +1,25 @@
+---
+import { pains } from '../content/offer';
+---
+
+<section class="bg-canvas-soft section">
+  <div class="shell">
+    <h2 class="t-display-xl text-ink max-w-2xl">Узнаёте?</h2>
+
+    <div class="mt-10 grid gap-4 md:grid-cols-2">
+      {
+        pains.map((pain) => (
+          <div class="card">
+            <h3 class="t-heading-lg text-ink">{pain.title}</h3>
+            <p class="text-ink-mute mt-3">{pain.text}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <p class="t-body-lg text-ink-secondary mt-10 max-w-2xl">
+      Каждая из этих задач решается отдельно и по-разному. Поэтому мы не продаём «внедрение ИИ»
+      одним пакетом, а начинаем с разбора: сначала считаем, что окупится.
+    </p>
+  </div>
+</section>

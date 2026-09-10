@@ -1,0 +1,21 @@
+---
+import { site } from '../config/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="border-hairline border-t">
+  <div class="shell flex flex-wrap items-start justify-between gap-8 py-16">
+    <div>
+      <p class="t-heading-lg text-ink">{site.brand}</p>
+      <p class="t-caption text-ink-mute mt-2 max-w-sm">{site.title}</p>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <a class="text-primary" href={site.telegram} rel="noopener">{site.telegramLabel}</a>
+      <a class="text-primary" href={`mailto:${site.email}`}>{site.email}</a>
+    </div>
+
+    <p class="t-caption text-ink-mute">© {year} {site.legalName}</p>
+  </div>
+</footer>

@@ -1,0 +1,21 @@
+---
+import { outcomes } from '../content/offer';
+---
+
+<section class="section">
+  <div class="shell">
+    <p class="t-eyebrow text-ink-mute">Что меняется</p>
+    <h2 class="t-display-xl text-ink mt-3 max-w-3xl">Как выглядит бизнес через месяц после запуска</h2>
+
+    <div class="border-hairline mt-12 grid gap-px border-t md:grid-cols-2 lg:grid-cols-3">
+      {
+        outcomes.map((outcome) => (
+          <div class="border-hairline border-b py-7 pr-8">
+            <h3 class="t-heading-sm text-ink">{outcome.title}</h3>
+            <p class="text-ink-mute mt-2">{outcome.text}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

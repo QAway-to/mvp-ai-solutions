@@ -1,0 +1,59 @@
+---
+import { site } from '../config/site';
+
+/**
+ * Шапка поверх меша. Прозрачная вверху, на скролле подкладывает белое стекло —
+ * иначе тёмный текст навигации теряется на индиговой части градиента.
+ */
+const nav = [
+  { href: '#services', label: 'Решения' },
+  { href: '#process', label: 'Как работаем' },
+  { href: '#pricing', label: 'Стоимость' },
+  { href: '#faq', label: 'Вопросы' },
+];
+---
+
+<header
+  id="site-header"
+  class="fixed inset-x-0 top-0 z-50 transition-colors duration-200"
+  data-scrolled="false"
+>
+  <div class="shell flex items-center justify-between gap-6 py-4">
+    <a href="#top" class="t-heading-lg text-ink whitespace-nowrap">{site.brand}</a>
+
+    <nav aria-label="Основная навигация" class="hidden items-center gap-7 md:flex">
+      {
+        nav.map((item) => (
+          <a href={item.href} class="text-ink-secondary hover:text-primary transition-colors">
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <a href="#lead" class="btn btn-primary whitespace-nowrap">Бесплатный разбор</a>
+  </div>
+</header>
+
+<style>
+  #site-header[data-scrolled='true'] {
+    background-color: color-mix(in srgb, var(--color-canvas) 88%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+</style>
+
+<script>
+  // Флаг ставится атрибутом, а стиль живёт в CSS: так внешний вид шапки
+  // остаётся в одном месте, а скрипт занимается только фактом «страница уехала».
+  const header = document.getElementById('site-header');
+
+  if (header) {
+    const sync = () => {
+      header.dataset.scrolled = String(window.scrollY > 24);
+    };
+
+    sync();
+    window.addEventListener('scroll', sync, { passive: true });
+  }
+</script>

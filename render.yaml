@@ -1,0 +1,35 @@
+# Описание сервиса для Render — справочное.
+#
+# СЕЙЧАС НЕ ИСПОЛЬЗУЕТСЯ КАК ИСТОЧНИК ПРАВДЫ: сервис заводится в панели Render
+# руками, тариф и переменные окружения задаются там же. Этот файл нужен, чтобы
+# настройки не жили только в голове и в чужом веб-интерфейсе.
+#
+# Тип — Web Service, а не Static Site, и это принципиально: форма заявки
+# отправляется на POST /api/lead, который обрабатывает server.mjs. У Static Site
+# процесса нет, и принять форму там нечем. Плата за это — сон контейнера на
+# free-плане после 15 минут тишины: первый посетитель ждёт холодного старта.
+# Под платный трафик сервис нужно держать на платном плане.
+
+services:
+  - type: web
+    name: mvp-ai-solutions
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+
+    envVars:
+      # Токен бота и чат для заявок задаются в панели и в репозиторий не попадают.
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+
+      # Базовый адрес для canonical, OG-тегов и sitemap.
+      # После привязки домена заменить на боевой.
+      - key: PUBLIC_SITE_URL
+        value: https://mvp-ai-solutions.onrender.com
+
+      - key: NODE_VERSION
+        value: 22.12.0

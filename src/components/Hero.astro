@@ -1,0 +1,40 @@
+---
+import { hero } from '../content/offer';
+import GradientMesh from './GradientMesh.astro';
+import ProductMockup from './ProductMockup.astro';
+---
+
+<section id="top" class="relative overflow-hidden">
+  <!-- Меш занимает верхнюю треть и уходит за края экрана. -->
+  <GradientMesh class="absolute inset-x-0 top-0 -z-10 h-[620px] w-full" />
+
+  <div class="shell pt-32 pb-16 md:pt-40">
+    <div class="max-w-3xl">
+      <p class="pill-tag">{hero.eyebrow}</p>
+
+      <h1 class="t-display-xxl text-ink mt-5">{hero.title}</h1>
+
+      <p class="t-body-lg text-ink-secondary mt-6 max-w-2xl">{hero.lead}</p>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="#lead" class="btn btn-primary">{hero.ctaPrimary}</a>
+        <a href="#services" class="btn btn-secondary">{hero.ctaSecondary}</a>
+      </div>
+
+      <ul class="t-caption text-ink-mute mt-6 flex flex-wrap gap-x-6 gap-y-2">
+        {
+          hero.trust.map((item) => (
+            <li class="flex items-center gap-2">
+              <span class="bg-primary inline-block h-1.5 w-1.5 rounded-full" aria-hidden="true" />
+              {item}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="mt-14 md:mt-20">
+      <ProductMockup />
+    </div>
+  </div>
+</section>

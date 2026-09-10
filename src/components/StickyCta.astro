@@ -1,0 +1,37 @@
+---
+/**
+ * Плавающая кнопка на мобильном: на длинной странице кнопка из первого экрана
+ * уезжает и больше не возвращается, а решение созревает ближе к концу.
+ * Прячется, когда виден сам блок с формой, чтобы не перекрывать поля ввода.
+ */
+---
+
+<div
+  id="sticky-cta"
+  class="fixed inset-x-0 bottom-0 z-40 p-3 transition-opacity duration-200 md:hidden"
+>
+  <a href="#lead" class="btn btn-primary w-full shadow-lg">Получить бесплатный разбор</a>
+</div>
+
+<style>
+  #sticky-cta[data-hidden='true'] {
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  const cta = document.getElementById('sticky-cta');
+  const lead = document.getElementById('lead');
+
+  if (cta && lead) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        cta.dataset.hidden = String(entry.isIntersecting);
+      },
+      { threshold: 0.15 },
+    );
+
+    observer.observe(lead);
+  }
+</script>
