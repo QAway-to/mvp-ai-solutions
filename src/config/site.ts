@@ -13,10 +13,11 @@ export const site = {
     'интеграции между CRM и магазином, отчёты на человеческом языке. ' +
     'Начинаем с бесплатного разбора и работающего прототипа за 5–10 дней.',
 
-  // TODO: подставить свои контакты.
-  telegram: 'https://t.me/your_username',
-  telegramLabel: '@your_username',
-  email: 'hello@example.com',
+  // Личка для тех, кто не хочет заполнять форму. Заявки из формы идут
+  // не сюда, а в чат из TELEGRAM_CHAT_ID — см. .env.example.
+  telegram: 'https://t.me/aimindset',
+  telegramLabel: '@aimindset',
+  email: 'toaifuturesad@gmail.com',
 
   // Адрес считается от PUBLIC_SITE_URL в astro.config.mjs; здесь — только
   // для ссылок внутри разметки, где нужен абсолютный путь.
