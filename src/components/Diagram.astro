@@ -1,0 +1,346 @@
+---
+import type { Diagram, DiagramIcon, DiagramNode } from '../content/types';
+
+/**
+ * Сцена решения: откуда приходит работа, что с ней делает система, что выходит
+ * на другом конце. Рисуется как одна SVG-картинка, а не набор блоков: связи и
+ * подписи на них — половина смысла, а обычной вёрсткой кривые не проведёшь.
+ *
+ * Почему руками, а не библиотекой: шесть сцен, каждая рисуется один раз и живёт
+ * годами. Раннер раскладки в браузере стоил бы килобайтов и кадров, а картинка
+ * от этого не стала бы точнее.
+ *
+ * Идентификаторы маркеров и градиентов уникальны на сцену (префикс id): шесть
+ * диаграмм на одной странице иначе переиспользуют чужую стрелку.
+ */
+interface Props {
+  id: string;
+  diagram: Diagram;
+}
+
+const { id, diagram } = Astro.props;
+
+const VIEW_W = 1120;
+const VIEW_H = diagram.height ?? 360;
+
+const byId = new Map(diagram.nodes.map((node) => [node.id, node]));
+
+const centerX = (node: DiagramNode) => node.x + node.w / 2;
+const centerY = (node: DiagramNode) => node.y + node.h / 2;
+
+/**
+ * Связь идёт от края к краю, а не из центра в центр: стрелка иначе утыкается
+ * в рамку. Горизонтальные связи гнутся кубической кривой, вертикальные — по
+ * той же логике, просто по другой оси.
+ */
+const edgePath = (from: DiagramNode, to: DiagramNode) => {
+  const horizontal = Math.abs(centerX(to) - centerX(from)) > Math.abs(centerY(to) - centerY(from));
+
+  if (horizontal) {
+    const forward = centerX(to) > centerX(from);
+    const x1 = forward ? from.x + from.w : from.x;
+    const x2 = forward ? to.x : to.x + to.w;
+    const y1 = centerY(from);
+    const y2 = centerY(to);
+    const bend = Math.max(Math.abs(x2 - x1) / 2, 24) * (forward ? 1 : -1);
+
+    return {
+      d: `M ${x1} ${y1} C ${x1 + bend} ${y1}, ${x2 - bend} ${y2}, ${x2} ${y2}`,
+      mx: (x1 + x2) / 2,
+      my: (y1 + y2) / 2,
+      horizontal,
+      gap: Math.abs(x2 - x1),
+      clearance: Math.max(from.h, to.h) / 2 + 16,
+    };
+  }
+
+  const down = centerY(to) > centerY(from);
+  const y1 = down ? from.y + from.h : from.y;
+  const y2 = down ? to.y : to.y + to.h;
+  const x1 = centerX(from);
+  const x2 = centerX(to);
+  const bend = Math.max(Math.abs(y2 - y1) / 2, 20) * (down ? 1 : -1);
+
+  return {
+    d: `M ${x1} ${y1} C ${x1} ${y1 + bend}, ${x2} ${y2 - bend}, ${x2} ${y2}`,
+    mx: (x1 + x2) / 2,
+    my: (y1 + y2) / 2,
+    horizontal,
+    gap: Math.abs(y2 - y1),
+    clearance: Math.max(from.w, to.w) / 2 + 12,
+  };
+};
+
+/* Ширина подписи считается на глаз по числу знаков: SVG не умеет мерить текст
+   до отрисовки, а знать ширину надо здесь — иначе подпись ляжет на узел. */
+const labelWidth = (text: string) => text.length * 6.4 + 14;
+
+const edges = diagram.edges.flatMap((edge) => {
+  const from = byId.get(edge.from);
+  const to = byId.get(edge.to);
+
+  /* Опечатка в id — это не «связь без одного конца», а потерянная стрелка,
+     которую на глаз не заметишь: тип from/to остаётся обычной строкой, и
+     проверить это может только сборка. Поэтому падаем здесь, а не молчим. */
+  if (!from || !to) {
+    throw new Error(
+      `Схема «${id}»: связь ${edge.from} → ${edge.to} ссылается на несуществующий узел`,
+    );
+  }
+
+  const path = edgePath(from, to);
+
+  if (!edge.label) return [{ ...edge, ...path, lx: path.mx, ly: path.my, lw: 0 }];
+
+  const lw = labelWidth(edge.label);
+
+  /* Подпись живёт посередине связи, пока там есть место. Не влезает — уходит
+     над узлами (горизонтальная связь) или вбок от линии (вертикальная):
+     наехавшая на рамку подпись хуже, чем отодвинутая. */
+  const tight = path.gap < lw + 12;
+
+  const lx = path.horizontal || !tight ? path.mx : path.mx + lw / 2 + 12;
+  const ly = path.horizontal
+    ? path.my - (tight ? path.clearance : 10)
+    : path.my + (tight ? 4 : 0);
+
+  return [{ ...edge, ...path, lx, ly: ly + (edge.labelDy ?? 0), lw }];
+});
+
+const icons: Record<DiagramIcon, string> = {
+  chat: 'M4 6.5h16v9.5h-9l-4.5 3.5v-3.5H4z',
+  phone: 'M7.5 3.5h9v17h-9zM11 17.5h2',
+  globe: 'M12 3.5a8.5 8.5 0 100 17 8.5 8.5 0 000-17zM3.5 12h17M12 3.5c2.5 2.4 2.5 14.1 0 17M12 3.5c-2.5 2.4-2.5 14.1 0 17',
+  bot: 'M12 3v2.5M6.5 5.5h11v9h-11zM9.5 9v1.5M14.5 9v1.5M9 18h6M12 14.5V18',
+  book: 'M5.5 4.5h13v15h-13zM9 4.5v15M12 9h4M12 12.5h4',
+  user: 'M12 4a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM4.5 20c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6',
+  store: 'M4 9.5L6 4.5h12l2 5M4 9.5h16M4 9.5v10h16v-10M9.5 19.5v-6h5v6',
+  table: 'M4 5h16v14H4zM4 10h16M4 15h16M9.5 5v14M15 5v14',
+  chart: 'M4 20h16M7 20v-7M12 20V6M17 20v-10',
+  doc: 'M6.5 3.5h8l3.5 3.5v13h-11.5zM14 3.5V7h3.5M9 12h6M9 15.5h6',
+  clock: 'M12 3.5a8.5 8.5 0 100 17 8.5 8.5 0 000-17zM12 7v5.5l3.5 2',
+  alert: 'M12 4l8.5 15h-17zM12 10v4M12 16.5v.5',
+};
+---
+
+<figure class="diagram">
+  <svg
+    viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+    role="img"
+    aria-label={diagram.alt}
+    preserveAspectRatio="xMidYMid meet"
+  >
+    <title>{diagram.alt}</title>
+
+    <defs>
+      <marker
+        id={`${id}-arrow`}
+        viewBox="0 0 10 10"
+        refX="9"
+        refY="5"
+        markerWidth="7"
+        markerHeight="7"
+        orient="auto-start-reverse"
+      >
+        <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
+      </marker>
+
+      <radialGradient id={`${id}-glow`}>
+        <stop offset="0%" stop-color="#533afd" stop-opacity="0.55" />
+        <stop offset="100%" stop-color="#533afd" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+
+    {
+      edges.map((edge) => (
+        <g class="edge">
+          <path
+            d={edge.d}
+            class={edge.dashed ? 'link link-dashed' : 'link'}
+            marker-end={`url(#${id}-arrow)`}
+          />
+
+          {edge.label && (
+            <g>
+              {/* Подложка под подписью: иначе линия проходит сквозь текст. */}
+              <rect x={edge.lx - edge.lw / 2} y={edge.ly - 11} width={edge.lw} height={16} class="edge-label-bg" />
+              <text x={edge.lx} y={edge.ly} class="edge-label">
+                {edge.label}
+              </text>
+            </g>
+          )}
+        </g>
+      ))
+    }
+
+    {
+      diagram.nodes.map((node) => (
+        <g class={`node node-${node.kind}`}>
+          {node.kind === 'core' && (
+            <ellipse
+              cx={node.x + node.w / 2}
+              cy={node.y + node.h / 2}
+              rx={node.w * 0.9}
+              ry={node.h * 1.3}
+              fill={`url(#${id}-glow)`}
+            />
+          )}
+
+          <rect x={node.x} y={node.y} width={node.w} height={node.h} rx="12" />
+
+          {node.icon && (
+            <svg
+              x={node.x + 16}
+              y={node.y + node.h / 2 - 11}
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d={icons[node.icon]} class="icon" />
+            </svg>
+          )}
+
+          <text x={node.x + (node.icon ? 48 : 18)} y={node.y + (node.sub ? node.h / 2 - 2 : node.h / 2 + 5)} class="node-label">
+            {node.label}
+          </text>
+
+          {node.sub && (
+            <text x={node.x + (node.icon ? 48 : 18)} y={node.y + node.h / 2 + 16} class="node-sub">
+              {node.sub}
+            </text>
+          )}
+        </g>
+      ))
+    }
+  </svg>
+</figure>
+
+<style>
+  /* Сцена шире телефона по своей природе: вместо того чтобы сжимать подписи
+     до нечитаемых, даём ей уехать вбок внутри своей полосы. Градиент у правого
+     края — единственный признак, по которому видно, что там ещё есть картинка. */
+  .diagram {
+    position: relative;
+    margin: 0;
+    overflow-x: auto;
+  }
+
+  .diagram::after {
+    content: '';
+    position: sticky;
+    top: 0;
+    right: 0;
+    float: right;
+    width: 56px;
+    height: 100%;
+    background: linear-gradient(to right, rgba(28, 30, 84, 0), rgba(28, 30, 84, 0.9));
+    pointer-events: none;
+  }
+
+  @media (min-width: 1200px) {
+    .diagram::after {
+      display: none;
+    }
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    min-width: 720px;
+    height: auto;
+  }
+
+  .link {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.32);
+    stroke-width: 1.5;
+  }
+
+  .link-dashed {
+    stroke-dasharray: 5 5;
+    stroke: rgba(255, 255, 255, 0.22);
+  }
+
+  .arrow-head {
+    fill: rgba(255, 255, 255, 0.4);
+  }
+
+  .edge-label-bg {
+    fill: var(--color-brand-dark);
+  }
+
+  .edge-label {
+    fill: rgba(255, 255, 255, 0.55);
+    font-size: 12px;
+    text-anchor: middle;
+    letter-spacing: -0.01em;
+  }
+
+  .node rect {
+    fill: rgba(255, 255, 255, 0.06);
+    stroke: rgba(255, 255, 255, 0.16);
+  }
+
+  .node-label {
+    fill: rgba(255, 255, 255, 0.92);
+    font-size: 14px;
+  }
+
+  .node-sub {
+    fill: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    font-feature-settings: 'tnum', 'ss01';
+  }
+
+  .icon {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.55);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Ядро — то, что мы внедряем. Единственное залитое пятно на сцене. */
+  .node-core rect {
+    fill: var(--color-primary);
+    stroke: var(--color-primary-soft);
+  }
+
+  .node-core .node-label {
+    fill: #fff;
+    font-size: 15px;
+  }
+
+  .node-core .node-sub {
+    fill: rgba(255, 255, 255, 0.75);
+  }
+
+  .node-core .icon {
+    stroke: #fff;
+  }
+
+  .node-store rect {
+    fill: rgba(255, 255, 255, 0.02);
+    stroke: rgba(255, 255, 255, 0.16);
+    stroke-dasharray: 5 5;
+  }
+
+  /* Человек в контуре — белая плашка: видно, где решение остаётся за людьми. */
+  .node-human rect {
+    fill: var(--color-canvas);
+    stroke: var(--color-canvas);
+  }
+
+  .node-human .node-label {
+    fill: var(--color-brand-dark);
+  }
+
+  .node-human .node-sub {
+    fill: rgba(28, 30, 84, 0.65);
+  }
+
+  .node-human .icon {
+    stroke: var(--color-brand-dark);
+  }
+</style>

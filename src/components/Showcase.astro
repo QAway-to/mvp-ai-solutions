@@ -1,6 +1,6 @@
 ---
 import { demos } from '../content/offer';
-import Flow from './Flow.astro';
+import Diagram from './Diagram.astro';
 import BotDemo from './demos/BotDemo.astro';
 import ContentDemo from './demos/ContentDemo.astro';
 import FunnelDemo from './demos/FunnelDemo.astro';
@@ -10,19 +10,20 @@ import SyncDemo from './demos/SyncDemo.astro';
 import type { DemoId } from '../content/types';
 
 /**
- * «Как это работает»: схема на каждое решение, раскрывается по клику.
+ * «Как это работает»: схема решения во всю ширину, решение выбирается вкладкой.
  *
- * Свёрнутый вид — только схема: человек пробегает шесть потоков глазами и
- * находит свой, не читая шесть описаний подряд. Подробности и рабочий экран
- * появляются в раскрытом блоке, поэтому секция остаётся высотой в экран.
+ * Почему вкладки, а не шесть схем подряд: схема живёт только в полную ширину —
+ * ужатая, она теряет подписи на связях, ради которых и рисовалась. Шесть штук
+ * подряд дают три с половиной тысячи пикселей, которые пролистывают.
  *
- * Раскрытие на <details>, как в FAQ: работает без JavaScript и с клавиатуры.
- * Атрибут name делает из блоков аккордеон (открыт один); там, где браузер его
- * ещё не знает, просто откроется несколько — ничего не ломается.
+ * Рабочий экран убран под «Показать рабочий экран»: схема отвечает на вопрос
+ * «как это устроено», экран — на «как это выглядит», и второй вопрос возникает
+ * не у всех.
  *
- * Тёмная подложка — единственная на лендинге: отделяет обещание от того,
- * как оно устроено, и не даёт двум белым секциям слиться.
+ * Тёмная подложка — единственная на лендинге: отделяет обещание от механики
+ * и не даёт двум белым секциям слиться.
  */
+
 /* Тип карты опирается на то, что все экраны не принимают пропсов. Появится
    первый с Props — ошибка вылезет здесь, а не в том компоненте, где разошлось. */
 const views: Record<DemoId, typeof BotDemo> = {
@@ -40,60 +41,81 @@ const views: Record<DemoId, typeof BotDemo> = {
     <div class="grid gap-x-10 gap-y-3 lg:grid-cols-[1fr_minmax(0,380px)] lg:items-end">
       <div>
         <p class="t-eyebrow opacity-60">Как это работает</p>
-        <h2 class="t-display-xl mt-2">Шесть схем вместо шести презентаций</h2>
+        <h2 class="t-display-xl mt-2">Схема каждого решения, а не обещание</h2>
       </div>
       <p class="t-body-lg max-w-xl opacity-75">
-        Каждое решение — поток из четырёх шагов. Раскройте любой, чтобы увидеть, что
-        происходит на каждом шаге и как выглядит рабочий экран. Цифры в схемах условные:
-        свои появятся после разбора.
+        Что откуда приходит, что с этим делает система и где в контуре остаётся человек.
+        Цифры на связях условные — свои появятся после разбора.
       </p>
     </div>
 
-    <div class="border-hairline mt-7 border-t border-white/15">
-      {
-        demos.map((demo, index) => {
-          const View = views[demo.id];
+    <!-- На мобильном вкладки уезжают в горизонтальную прокрутку, а не переносятся
+         в три ряда: так видно, что это один переключатель. -->
+    <div class="-mx-5 mt-7 overflow-x-auto px-5">
+      <div role="tablist" aria-label="Решения" class="flex w-max gap-2">
+        {
+          demos.map((demo, index) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${demo.id}`}
+              aria-controls={`panel-${demo.id}`}
+              aria-selected={index === 0 ? 'true' : 'false'}
+              tabindex={index === 0 ? 0 : -1}
+            >
+              {demo.tag}
+            </button>
+          ))
+        }
+      </div>
+    </div>
 
-          return (
-            <details class="solution border-b border-white/15" name="solution" open={index === 0}>
-              <summary>
-                <h3 class="t-display-md pr-10">
-                  <span class="t-eyebrow block opacity-60">{demo.tag}</span>
-                  {demo.title}
-                </h3>
+    {
+      demos.map((demo, index) => {
+        const View = views[demo.id];
 
-                <span class="marker text-2xl leading-none" aria-hidden="true">
-                  +
-                </span>
+        return (
+          <div
+            class="demo-panel mt-6"
+            id={`panel-${demo.id}`}
+            role="tabpanel"
+            aria-labelledby={`tab-${demo.id}`}
+            tabindex="0"
+            hidden={index !== 0}
+          >
+            <h3 class="t-display-md">{demo.title}</h3>
 
-                <div class="mt-4">
-                  <Flow nodes={demo.flow} />
-                </div>
+            <div class="mt-5 rounded-[16px] border border-white/12 bg-white/[0.03] p-5">
+              <Diagram id={demo.id} diagram={demo.diagram} />
+            </div>
+
+            <div class="mt-5 grid gap-x-10 gap-y-5 lg:grid-cols-[minmax(0,340px)_1fr]">
+              <p class="opacity-75">{demo.text}</p>
+
+              <ol class="grid gap-x-8 gap-y-3 sm:grid-cols-3">
+                {demo.steps.map((step, stepIndex) => (
+                  <li class="border-t border-white/15 pt-3 text-[14px]">
+                    <span class="t-num text-primary-subdued mr-2">0{stepIndex + 1}</span>
+                    <span class="opacity-80">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <details class="screen mt-5 border-t border-white/15">
+              <summary class="flex items-center gap-2 py-4">
+                <span class="marker text-xl leading-none" aria-hidden="true">+</span>
+                Показать рабочий экран
               </summary>
 
-              <div class="grid items-start gap-4 pb-7 lg:grid-cols-[1fr_minmax(0,300px)]">
+              <div class="pb-2">
                 <View />
-
-                <div class="rounded-[12px] bg-white/5 p-5">
-                  <p class="text-[14px] opacity-75">{demo.text}</p>
-
-                  <p class="t-eyebrow mt-5 opacity-60">Что происходит на каждом шаге</p>
-                  <ol class="mt-3 flex flex-col gap-3 border-t border-white/15 pt-4">
-                    {demo.flow.map((node, nodeIndex) => (
-                      <li class="text-[14px]">
-                        <span class="t-num text-primary-subdued mr-2">0{nodeIndex + 1}</span>
-                        <span class="opacity-90">{node.label}.</span>
-                        <span class="opacity-70"> {node.detail}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
               </div>
             </details>
-          );
-        })
-      }
-    </div>
+          </div>
+        );
+      })
+    }
 
     <div
       class="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-[12px] border border-white/15 px-5 py-4"
@@ -107,17 +129,41 @@ const views: Record<DemoId, typeof BotDemo> = {
 </section>
 
 <style>
-  summary {
-    display: block;
+  [role='tab'] {
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 8px 16px;
+    min-height: 40px;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.75);
+    white-space: nowrap;
     cursor: pointer;
-    list-style: none;
-    padding-block: 16px;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   }
 
-  /* Плюс выносится из потока: обёртка-флекс вокруг заголовка нарушала бы
-     модель содержимого <summary>, где заголовок должен идти первым. */
-  details {
-    position: relative;
+  [role='tab']:hover {
+    color: var(--color-canvas);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* Активная вкладка — залитая, как кнопка на тёмном: одна форма на весь сайт. */
+  [role='tab'][aria-selected='true'] {
+    background-color: var(--color-canvas);
+    border-color: var(--color-canvas);
+    color: var(--color-brand-dark);
+  }
+
+  [role='tab']:focus-visible,
+  [role='tabpanel']:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--color-primary-subdued);
+    outline-offset: 4px;
+  }
+
+  summary {
+    cursor: pointer;
+    list-style: none;
+    color: rgba(255, 255, 255, 0.75);
   }
 
   /* Стрелку по умолчанию в Safari убирает именно этот селектор. */
@@ -126,9 +172,6 @@ const views: Record<DemoId, typeof BotDemo> = {
   }
 
   .marker {
-    position: absolute;
-    top: 20px;
-    right: 0;
     color: var(--color-primary-subdued);
     transition: transform 0.15s ease;
   }
@@ -137,20 +180,97 @@ const views: Record<DemoId, typeof BotDemo> = {
     transform: rotate(45deg);
   }
 
-  summary:focus-visible {
-    outline: 2px solid var(--color-primary-subdued);
-    outline-offset: 4px;
-  }
-
-  /* В печать уходит одна раскрытая схема из шести — для PDF это потеря
-     пяти решений, поэтому на печати раскрываются все. */
+  /* В печать уходила бы одна вкладка из шести и ни одного экрана. */
   @media print {
-    details > *:not(summary) {
+    .demo-panel[hidden] {
       display: block !important;
     }
 
-    .marker {
-      display: none;
+    details > *:not(summary) {
+      display: block !important;
     }
   }
 </style>
+
+<noscript>
+  <style>
+    /* Без JavaScript вкладки не переключаются — показываем все панели подряд. */
+    .demo-panel[hidden] {
+      display: block;
+    }
+
+    [role='tablist'] {
+      display: none;
+    }
+  </style>
+</noscript>
+
+<script>
+  // Вкладки без библиотеки: состояние живёт в aria-selected, а вид — в CSS.
+  // Стрелки и Home/End обязательны: с одним tabindex по табу внутрь
+  // переключателя иначе не попасть.
+  const tablist = document.querySelector<HTMLElement>('#examples [role="tablist"]');
+
+  if (tablist) {
+    const tabs = [...tablist.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+
+    const select = (next: HTMLButtonElement, moveFocus: boolean) => {
+      for (const tab of tabs) {
+        const isActive = tab === next;
+        tab.setAttribute('aria-selected', String(isActive));
+        tab.tabIndex = isActive ? 0 : -1;
+
+        const panel = document.getElementById(tab.getAttribute('aria-controls') ?? '');
+        if (panel) panel.hidden = !isActive;
+      }
+
+      if (moveFocus) next.focus();
+    };
+
+    tablist.addEventListener('click', (event) => {
+      const target = event.target;
+      const tab =
+        target instanceof Element ? target.closest<HTMLButtonElement>('[role="tab"]') : null;
+
+      if (tab) select(tab, false);
+    });
+
+    /* Печать: CSS-правило ниже раскрывает скрытое не во всех движках, поэтому
+       перед печатью открываем панели и <details> по-настоящему. Иначе в PDF
+       уходит одна вкладка из шести. */
+    window.addEventListener('beforeprint', () => {
+      for (const panel of document.querySelectorAll<HTMLElement>('#examples .demo-panel')) {
+        panel.hidden = false;
+      }
+
+      for (const details of document.querySelectorAll<HTMLDetailsElement>('#examples details')) {
+        details.open = true;
+      }
+    });
+
+    window.addEventListener('afterprint', () => {
+      const active = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true');
+      if (active) select(active, false);
+    });
+
+    tablist.addEventListener('keydown', (event) => {
+      const current = tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');
+      if (current < 0) return;
+
+      const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+      const target =
+        step !== undefined
+          ? tabs[(current + step + tabs.length) % tabs.length]
+          : event.key === 'Home'
+            ? tabs[0]
+            : event.key === 'End'
+              ? tabs[tabs.length - 1]
+              : null;
+
+      if (!target) return;
+
+      event.preventDefault();
+      select(target, true);
+    });
+  }
+</script>
