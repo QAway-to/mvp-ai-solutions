@@ -50,7 +50,7 @@
   html {
     scroll-behavior: smooth;
     /* Липкая шапка не должна накрывать заголовок секции при переходе по якорю. */
-    scroll-padding-top: 88px;
+    scroll-padding-top: 84px;
   }
 
   body {
@@ -93,44 +93,44 @@
   /* Типографика. Размеры «шагают» вниз по брейкпоинтам через clamp,
      трекинг сжимается пропорционально кеглю. */
   .t-display-xxl {
-    font-size: clamp(36px, 6.2vw, 56px);
+    font-size: clamp(32px, 5.2vw, 48px);
     font-weight: 300;
     line-height: 1.03;
     letter-spacing: -0.025em;
   }
 
   .t-display-xl {
-    font-size: clamp(30px, 4.6vw, 48px);
+    font-size: clamp(26px, 3.4vw, 36px);
     font-weight: 300;
     line-height: 1.15;
     letter-spacing: -0.02em;
   }
 
   .t-display-lg {
-    font-size: clamp(24px, 3vw, 32px);
+    font-size: clamp(22px, 2.6vw, 28px);
     font-weight: 300;
     line-height: 1.1;
     letter-spacing: -0.02em;
   }
 
   .t-display-md {
-    font-size: clamp(22px, 2.4vw, 26px);
+    font-size: clamp(19px, 2vw, 22px);
     font-weight: 300;
     line-height: 1.12;
     letter-spacing: -0.01em;
   }
 
   .t-heading-lg {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 300;
     line-height: 1.1;
     letter-spacing: -0.01em;
   }
 
   .t-heading-sm {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 300;
-    line-height: 1.4;
+    line-height: 1.35;
   }
 
   .t-body-lg {
@@ -215,20 +215,20 @@
     background-color: var(--color-canvas);
     border: 1px solid var(--color-hairline);
     border-radius: var(--radius-card);
-    padding: 32px;
+    padding: 22px 24px;
   }
 
   .card-cream {
     background-color: var(--color-canvas-cream);
     border-radius: var(--radius-card);
-    padding: 32px;
+    padding: 22px 24px;
   }
 
   .card-dark {
     background-color: var(--color-brand-dark);
     color: var(--color-canvas);
     border-radius: var(--radius-card);
-    padding: 32px;
+    padding: 22px 24px;
   }
 
   .pill-tag {
@@ -265,7 +265,10 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
   }
 
-  /* Контейнер и вертикальный ритм секций (64–96px по системе). */
+  /* Контейнер и вертикальный ритм секций.
+     Система задаёт 64–96px, здесь взято по нижней границе и ниже: лендинг
+     продающий, и пустые поля между блоками читаются как обрыв мысли,
+     а не как «воздух». Меньше 40px секции начинают слипаться. */
   .shell {
     width: 100%;
     max-width: 1200px;
@@ -274,6 +277,6 @@
   }
 
   .section {
-    padding-block: clamp(56px, 8vw, 96px);
+    padding-block: clamp(40px, 4.6vw, 60px);
   }
 }

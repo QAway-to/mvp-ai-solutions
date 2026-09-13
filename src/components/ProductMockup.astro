@@ -16,6 +16,7 @@ const dialog = [
   { from: 'bot', text: 'Да, доставляем — 2–3 дня. Подсказать по наличию?' },
   { from: 'client', text: 'Нужно 20 штук на склад' },
   { from: 'bot', text: 'Это опт — передаю менеджеру, он ответит в течение часа.' },
+  { from: 'client', text: 'Отлично, жду' },
 ];
 
 const rows = [
@@ -23,6 +24,8 @@ const rows = [
   { source: 'Сайт', task: 'Расчёт стоимости', status: 'Отвечено', amount: '4 500' },
   { source: 'WhatsApp', task: 'Статус заказа', status: 'Закрыто', amount: '—' },
   { source: 'Telegram', task: 'Реквизиты', status: 'Закрыто', amount: '—' },
+  { source: 'Сайт', task: 'Подбор модели', status: 'Отвечено', amount: '12 900' },
+  { source: 'WhatsApp', task: 'Возврат', status: 'Менеджеру', amount: '—' },
 ];
 ---
 

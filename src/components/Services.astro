@@ -4,22 +4,26 @@ import { services } from '../content/offer';
 
 <section id="services" class="section">
   <div class="shell">
-    <p class="t-eyebrow text-ink-mute">Что мы внедряем</p>
-    <h2 class="t-display-xl text-ink mt-3 max-w-3xl">Шесть решений, которые окупаются первыми</h2>
-    <p class="t-body-lg text-ink-secondary mt-5 max-w-2xl">
-      Список не про технологии, а про участки, где у бизнеса регулярно течёт время и деньги.
-      Обычно начинают с одного и добавляют остальное по мере того, как первое окупается.
-    </p>
+    <div class="grid gap-x-10 gap-y-3 lg:grid-cols-[1fr_minmax(0,380px)] lg:items-end">
+      <div>
+        <p class="t-eyebrow text-ink-mute">Что мы внедряем</p>
+        <h2 class="t-display-xl text-ink mt-2">Шесть решений, которые окупаются первыми</h2>
+      </div>
+      <p class="t-body-lg text-ink-secondary max-w-xl">
+        Список не про технологии, а про участки, где у бизнеса регулярно течёт время и деньги.
+        Обычно начинают с одного и добавляют остальное по мере того, как первое окупается.
+      </p>
+    </div>
 
-    <div class="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div class="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {
         services.map((service) => (
           <article class="card flex flex-col">
             <p class="t-eyebrow text-primary-deep">{service.tag}</p>
-            <h3 class="t-display-md text-ink mt-4">{service.title}</h3>
+            <h3 class="t-display-md text-ink mt-3">{service.title}</h3>
             <p class="text-ink-mute mt-3">{service.text}</p>
 
-            <ul class="border-hairline mt-6 flex flex-col gap-2 border-t pt-5">
+            <ul class="border-hairline mt-4 flex flex-col gap-2 border-t pt-4">
               {service.bullets.map((bullet) => (
                 <li class="text-ink-secondary flex gap-2.5 text-[14px]">
                   <span
@@ -35,7 +39,7 @@ import { services } from '../content/offer';
       }
     </div>
 
-    <div class="card-cream mt-4 flex flex-wrap items-center justify-between gap-6">
+    <div class="card-cream mt-4 flex flex-wrap items-center justify-between gap-5">
       <p class="t-display-md text-ink max-w-xl">
         Не нашли свою задачу? Чаще всего она решается комбинацией из двух пунктов выше.
       </p>

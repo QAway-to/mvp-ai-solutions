@@ -4,14 +4,18 @@ import { pricing, pricingNote } from '../content/offer';
 
 <section id="pricing" class="bg-canvas-soft section">
   <div class="shell">
-    <p class="t-eyebrow text-ink-mute">Стоимость</p>
-    <h2 class="t-display-xl text-ink mt-3 max-w-3xl">Платите по шагам, а не за обещание</h2>
-    <p class="t-body-lg text-ink-secondary mt-5 max-w-2xl">
-      Каждый следующий шаг начинается, только если предыдущий вас устроил.
-      Точная смета называется на разборе — до начала работ.
-    </p>
+    <div class="grid gap-x-10 gap-y-3 lg:grid-cols-[1fr_minmax(0,380px)] lg:items-end">
+      <div>
+        <p class="t-eyebrow text-ink-mute">Стоимость</p>
+        <h2 class="t-display-xl text-ink mt-2">Платите по шагам, а не за обещание</h2>
+      </div>
+      <p class="t-body-lg text-ink-secondary max-w-xl">
+        Каждый следующий шаг начинается, только если предыдущий вас устроил.
+        Точная смета называется на разборе — до начала работ.
+      </p>
+    </div>
 
-    <div class="mt-12 grid items-start gap-4 lg:grid-cols-3">
+    <div class="mt-7 grid items-start gap-4 lg:grid-cols-3">
       {
         pricing.map((tier) => (
           <div class={tier.featured ? 'card-dark flex flex-col' : 'card flex flex-col'}>
@@ -19,15 +23,15 @@ import { pricing, pricingNote } from '../content/offer';
 
             <h3 class={`t-heading-lg ${tier.featured ? 'mt-3' : ''}`}>{tier.name}</h3>
 
-            <p class="t-num mt-5 text-5xl font-light">{tier.price}</p>
+            <p class="t-num mt-4 text-4xl font-light">{tier.price}</p>
             <p class={`t-caption mt-2 ${tier.featured ? 'opacity-70' : 'text-ink-mute'}`}>
               {tier.priceNote}
             </p>
 
-            <p class={`mt-5 ${tier.featured ? 'opacity-80' : 'text-ink-mute'}`}>{tier.text}</p>
+            <p class={`mt-4 ${tier.featured ? 'opacity-80' : 'text-ink-mute'}`}>{tier.text}</p>
 
             <ul
-              class={`mt-6 flex flex-col gap-2.5 border-t pt-6 ${
+              class={`mt-4 flex flex-col gap-2.5 border-t pt-4 ${
                 tier.featured ? 'border-white/15' : 'border-hairline'
               }`}
             >
@@ -45,7 +49,7 @@ import { pricing, pricingNote } from '../content/offer';
             </ul>
 
             {/* Кнопка прижата к низу, чтобы карточки разной высоты выравнивались. */}
-            <div class="mt-auto pt-8">
+            <div class="mt-auto pt-6">
               <a
                 href="#lead"
                 class={`btn w-full ${tier.featured ? 'btn-on-dark' : 'btn-secondary'}`}
@@ -58,6 +62,6 @@ import { pricing, pricingNote } from '../content/offer';
       }
     </div>
 
-    <p class="t-caption text-ink-mute mt-6 max-w-3xl">{pricingNote}</p>
+    <p class="t-caption text-ink-mute mt-5 max-w-3xl">{pricingNote}</p>
   </div>
 </section>
