@@ -1,0 +1,43 @@
+---
+/**
+ * Демо решения «Интеграции»: лог синхронизации между системами.
+ * Смысл экрана — не «всё зелёное», а что расхождение видно и названо.
+ *
+ * Названия систем и числа условные — не результаты клиентов.
+ */
+const events = [
+  { at: '14:02', text: 'Заказ №1841 → CRM: сделка создана', state: 'ok' },
+  { at: '14:02', text: 'Остаток «Кроссовки 42» → склад: 12 шт', state: 'ok' },
+  { at: '13:47', text: 'Цена в магазине и в CRM разошлись на 400 ₽', state: 'alert' },
+  { at: '13:47', text: 'Оплата №1839 → бухгалтерия: проведена', state: 'ok' },
+];
+---
+
+<div class="panel">
+  <div class="panel-head">
+    <span class="panel-dot bg-primary"></span>
+    Синхронизация · магазин, CRM, склад
+    <span class="panel-status panel-status-quiet ml-auto">каждые 2 мин</span>
+  </div>
+
+  <ul class="flex flex-col">
+    {
+      events.map((event) => (
+        <li class="border-hairline flex items-start gap-3 border-b px-4 py-3 last:border-b-0">
+          <span class="t-num text-ink-mute shrink-0 text-[13px]">{event.at}</span>
+          <span class="text-ink-secondary min-w-0 flex-1 text-[14px]">{event.text}</span>
+          <span class={`panel-status ${event.state === 'alert' ? 'panel-status-alert' : 'panel-status-quiet'}`}>
+            {event.state === 'alert' ? 'разъехалось' : 'перенесено'}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="panel-note">
+    <p>
+      <span class="text-ruby">Расхождение отправлено ответственному.</span>
+      Раньше такое находили на сверке в конце месяца.
+    </p>
+  </div>
+</div>

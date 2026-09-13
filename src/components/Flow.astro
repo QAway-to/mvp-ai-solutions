@@ -1,0 +1,91 @@
+---
+import type { FlowNode } from '../content/types';
+
+/**
+ * Схема решения: четыре узла в строку со стрелками.
+ *
+ * Стрелка рисуется псевдоэлементом, а не отдельной картинкой: на мобильном
+ * та же схема разворачивается в колонку, и стрелке достаточно сменить знак
+ * и место — разметка при этом не меняется.
+ */
+interface Props {
+  nodes: readonly FlowNode[];
+}
+
+const { nodes } = Astro.props;
+---
+
+<ol class="flow">
+  {
+    nodes.map((node) => (
+      <li class="flow-node">
+        {node.value && <p class="flow-value t-num">{node.value}</p>}
+        <p class="flow-label">{node.label}</p>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .flow {
+    display: grid;
+    gap: 28px;
+  }
+
+  .flow-node {
+    position: relative;
+    /* Цифра прижата к верху, подпись к низу: иначе у узлов без цифры подпись
+       уезжает выше соседних и строка схемы теряет общую линию. */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 11px 14px;
+  }
+
+  /* Связка между узлами. На первом узле стрелки нет — ей неоткуда идти. */
+  .flow-node + .flow-node::before {
+    content: '↓';
+    position: absolute;
+    top: -23px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  .flow-value {
+    color: var(--color-primary-subdued);
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  .flow-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    line-height: 1.3;
+    margin-top: 4px;
+  }
+
+  @media (min-width: 768px) {
+    .flow {
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      gap: 24px;
+    }
+
+    .flow-node {
+      min-height: 68px;
+    }
+
+    .flow-node + .flow-node::before {
+      content: '→';
+      top: 50%;
+      left: -18px;
+      transform: translateY(-50%);
+    }
+  }
+</style>

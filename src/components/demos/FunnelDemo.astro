@@ -1,0 +1,57 @@
+---
+/**
+ * Демо решения «Воронка»: шаги пути клиента с метриками.
+ * Экран показывает не «много трафика», а где именно теряются люди.
+ *
+ * Числа условные — иллюстрация интерфейса, не результаты клиентов.
+ */
+const steps = [
+  { name: 'Зашли на лендинг', value: 2400 },
+  { name: 'Оставили заявку', value: 312 },
+  { name: 'Дошли до бота', value: 286 },
+  { name: 'Оплатили', value: 74 },
+];
+
+/* Доля считается от первого шага, а не задаётся руками: иначе полоса и число
+   рядом с ней рассказывают разные истории. */
+const top = steps[0].value;
+const format = (value: number) => value.toLocaleString('ru-RU').replace(/\u00a0/g, ' ');
+---
+
+<div class="panel">
+  <div class="panel-head">
+    <span class="panel-dot bg-primary"></span>
+    Воронка · последние 30 дней
+    <span class="panel-status panel-status-quiet ml-auto">обновляется сама</span>
+  </div>
+
+  <ul class="flex flex-col gap-4 p-4">
+    {
+      steps.map((step) => (
+        <li>
+          <div class="flex items-baseline justify-between gap-3">
+            <span class="text-ink-secondary text-[14px]">{step.name}</span>
+            <span class="t-num text-ink text-[15px]">{format(step.value)}</span>
+          </div>
+
+          {/* Полоса — доля от первого шага, поэтому падение видно глазом.
+              Первый шаг приглушён намеренно: он база сравнения, а смотреть
+              нужно на то, сколько от него осталось дальше. */}
+          <div class="bg-canvas-soft mt-2 h-2 w-full overflow-hidden rounded-full">
+            <div
+              class={`h-full rounded-full ${step.value === top ? 'bg-primary-subdued' : 'bg-primary'}`}
+              style={`width: ${Math.max((step.value / top) * 100, 1.5)}%`}
+              aria-hidden="true"
+            />
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="panel-note">
+    <p>
+      Между заявкой и ботом теряются 26 человек — там и стоит чинить в первую очередь.
+    </p>
+  </div>
+</div>

@@ -1,0 +1,47 @@
+---
+/**
+ * Демо решения «Поиск заявок»: найденный запрос и готовый черновик отклика.
+ * Кнопки нарисованы, а не работают: это иллюстрация экрана, не форма.
+ *
+ * Площадки и суммы условные — не результаты клиентов.
+ */
+const found = [
+  { source: 'Kwork', task: 'Нужен бот для интернет-магазина', budget: '45 000', match: '92%' },
+  { source: 'Telegram', task: 'Ищем интеграцию CRM и склада', budget: '80 000', match: '87%' },
+  { source: 'Хабр Фриланс', task: 'Автоматизация отчётов', budget: '30 000', match: '71%' },
+];
+---
+
+<div class="panel">
+  <div class="panel-head">
+    <span class="panel-dot bg-ruby"></span>
+    Найдено за сегодня · 3 из 47 просмотренных
+  </div>
+
+  <ul class="flex flex-col">
+    {
+      found.map((item) => (
+        <li class="border-hairline flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-3">
+          <span class="t-caption text-ink-mute w-24 shrink-0">{item.source}</span>
+          <span class="text-ink-secondary min-w-0 flex-1 text-[14px]">{item.task}</span>
+          <span class="t-num text-ink text-[14px]">{item.budget} ₽</span>
+          <span class="panel-status">совпадение {item.match}</span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <!-- Черновик отклика: главное в решении — что отправка остаётся за человеком. -->
+  <div class="bg-canvas-soft p-4">
+    <p class="t-eyebrow text-ink-mute">Черновик отклика</p>
+    <p class="text-ink-secondary mt-2 text-[14px]">
+      Здравствуйте! Делали такого бота для магазина на 1200 SKU: отвечает по каталогу,
+      отдаёт остатки и передаёт опт менеджеру. Прототип за 7 дней, покажу на созвоне.
+    </p>
+
+    <div class="mt-3 flex flex-wrap gap-2" aria-hidden="true">
+      <span class="btn btn-primary pointer-events-none min-h-0 px-4 py-2 text-[14px]">Отправить</span>
+      <span class="btn btn-secondary pointer-events-none min-h-0 px-4 py-2 text-[14px]">Пропустить</span>
+    </div>
+  </div>
+</div>

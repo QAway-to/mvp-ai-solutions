@@ -1,0 +1,53 @@
+---
+/**
+ * Демо решения «Контент»: план публикаций на неделю.
+ *
+ * Рубрики и даты условные — не результаты клиентов.
+ */
+const week = [
+  { day: 'Пн', items: [{ kind: 'Пост', state: 'Опубликовано' }] },
+  { day: 'Вт', items: [{ kind: 'Видео', state: 'Опубликовано' }] },
+  { day: 'Ср', items: [{ kind: 'Пост', state: 'На согласовании' }] },
+  { day: 'Чт', items: [{ kind: 'Рассылка', state: 'Черновик' }] },
+  { day: 'Пт', items: [{ kind: 'Пост', state: 'Черновик' }, { kind: 'Видео', state: 'Черновик' }] },
+] as const;
+---
+
+<div class="panel">
+  <div class="panel-head">
+    <span class="panel-dot bg-magenta"></span>
+    Контент-план · неделя
+    <span class="panel-status panel-status-quiet ml-auto">тон голоса: ваш</span>
+  </div>
+
+  <!-- Пять дней в 335px экрана сжимаются до нечитаемых колонок, поэтому
+       календарь едет вбок внутри панели, а не ломает страницу. -->
+  <div class="overflow-x-auto">
+    <div class="grid min-w-[520px] grid-cols-5 gap-px bg-[color:var(--color-hairline)]">
+      {
+        week.map((day) => (
+          <div class="bg-canvas flex min-h-28 flex-col gap-2 p-3">
+            <p class="t-caption text-ink-mute">{day.day}</p>
+
+            {day.items.map((item) => (
+              <div class="border-hairline rounded-md border p-2">
+                <p class="text-ink text-[13px]">{item.kind}</p>
+                <p
+                  class={`t-caption mt-1 ${item.state === 'Опубликовано' ? 'text-primary-deep' : 'text-ink-mute'}`}
+                >
+                  {item.state}
+                </p>
+              </div>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="panel-note">
+    <p>
+      Черновики на среду и четверг ждут вашего «ок» — после него уходят по расписанию.
+    </p>
+  </div>
+</div>

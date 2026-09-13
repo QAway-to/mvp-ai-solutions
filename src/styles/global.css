@@ -243,6 +243,109 @@
     text-transform: uppercase;
   }
 
+  /* Демо-интерфейсы.
+     Мокап в первом экране и вкладки «Как это выглядит» рисуют один и тот же
+     продукт, поэтому поверхность описана здесь один раз, а не копией в каждом
+     компоненте: разъехавшиеся панели читались бы как два разных продукта. */
+  .panel {
+    background-color: var(--color-canvas);
+    /* Цвет текста задаётся здесь, а не наследуется: на тёмной секции панель
+       иначе получает белый текст на белом фоне и ячейки пропадают. */
+    color: var(--color-ink);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-panel);
+    overflow: hidden;
+  }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    color: var(--color-ink-mute);
+    font-size: 13px;
+    letter-spacing: -0.03em;
+  }
+
+  .panel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    flex-shrink: 0;
+  }
+
+  /* Табличные цифры на всём числовом — тихая подпись дизайн-системы. */
+  .panel-cell {
+    padding: 9px 16px;
+    font-size: 14px;
+    font-feature-settings: 'tnum', 'ss01';
+    letter-spacing: -0.03em;
+  }
+
+  .panel-status {
+    display: inline-block;
+    border-radius: 9999px;
+    background-color: var(--color-primary-subdued);
+    color: var(--color-primary-press);
+    padding: 2px 8px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .panel-status-quiet {
+    background-color: var(--color-canvas-soft);
+    color: var(--color-ink-mute);
+  }
+
+  .panel-status-alert {
+    background-color: color-mix(in srgb, var(--color-ruby) 12%, var(--color-canvas));
+    color: var(--color-ruby);
+  }
+
+  /* Подпись под содержимым панели: вывод, ради которого экран показывают. */
+  .panel-note {
+    background-color: var(--color-canvas-soft);
+    border-top: 1px solid var(--color-hairline);
+    padding: 12px 16px;
+    color: var(--color-ink-secondary);
+    font-size: 14px;
+  }
+
+  .bubble {
+    max-width: min(88%, 520px);
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .bubble-client {
+    align-self: flex-start;
+    background-color: var(--color-canvas-soft);
+    color: var(--color-ink-secondary);
+    border-bottom-left-radius: 4px;
+  }
+
+  .bubble-bot {
+    align-self: flex-end;
+    background-color: var(--color-primary);
+    color: var(--color-canvas);
+    border-bottom-right-radius: 4px;
+  }
+
+  .bar {
+    flex: 1;
+    border-radius: 3px;
+    background-color: var(--color-primary-subdued);
+  }
+
+  .bar-strong {
+    background-color: var(--color-primary);
+  }
+
   .field {
     width: 100%;
     min-height: 44px;

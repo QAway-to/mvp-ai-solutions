@@ -1,0 +1,65 @@
+---
+/**
+ * Демо решения «Отчёты»: вопрос человеком и ответ с расчётом.
+ * Ключевое в экране — строка источника: ответ можно проверить.
+ *
+ * Суммы и каналы условные — не результаты клиентов.
+ */
+const breakdown = [
+  { channel: 'Поиск', spend: '180 000', revenue: '742 000', roi: '×4,1' },
+  { channel: 'Таргет', spend: '120 000', revenue: '286 000', roi: '×2,4' },
+  { channel: 'Посевы', spend: '60 000', revenue: '54 000', roi: '×0,9' },
+];
+---
+
+<div class="panel">
+  <div class="panel-head">
+    <span class="panel-dot bg-primary"></span>
+    Отчёты · Telegram
+  </div>
+
+  <div class="flex flex-col gap-2 px-4 pt-4">
+    <p class="bubble bubble-client">Сколько заработали на рекламе в августе и что просело?</p>
+  </div>
+
+  <div class="p-4">
+    <div class="border-hairline rounded-lg border">
+      <div class="border-hairline flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b px-4 py-3">
+        <p class="t-num text-ink text-2xl font-light">1 082 000 ₽</p>
+        <p class="t-caption text-ink-mute">выручка · расход 360 000 ₽ · ROI ×3,0</p>
+      </div>
+
+      <!-- Четыре числовые колонки не живут в 335px: таблица прокручивается сама. -->
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[440px]">
+        <thead>
+          <tr class="text-ink-mute">
+            <th class="panel-cell text-left font-normal">Канал</th>
+            <th class="panel-cell text-right font-normal">Расход</th>
+            <th class="panel-cell text-right font-normal">Выручка</th>
+            <th class="panel-cell text-right font-normal">ROI</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            breakdown.map((row) => (
+              <tr class="border-hairline border-t">
+                <td class="panel-cell">{row.channel}</td>
+                <td class="panel-cell t-num text-right">{row.spend}</td>
+                <td class="panel-cell t-num text-right">{row.revenue}</td>
+                <td class={`panel-cell t-num text-right ${row.roi === '×0,9' ? 'text-ruby' : ''}`}>
+                  {row.roi}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="t-caption text-ink-mute mt-3">
+      Просели посевы: расход вырос, выручка нет. Источник: рекламные кабинеты и заказы за 01–31.08.
+    </p>
+  </div>
+</div>

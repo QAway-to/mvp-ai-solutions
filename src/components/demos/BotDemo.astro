@@ -1,0 +1,31 @@
+---
+/**
+ * Демо решения «Бот поддержки»: переписка клиента с ботом.
+ *
+ * Цифры и реплики — иллюстрация интерфейса, а не результаты клиентов.
+ * Не переносить их в текст лендинга как обещания.
+ */
+const dialog = [
+  { from: 'client', text: 'Здравствуйте! Доставка в регионы есть?' },
+  { from: 'bot', text: 'Да, доставляем — 2–3 дня. Подсказать по наличию?' },
+  { from: 'client', text: 'Нужно 20 штук на склад' },
+  { from: 'bot', text: 'Это опт — передаю менеджеру, он ответит в течение часа.' },
+  { from: 'client', text: 'Отлично, жду' },
+];
+---
+
+<div class="panel">
+  <div class="panel-head">
+    <span class="panel-dot bg-primary"></span>
+    Бот поддержки · Telegram
+    <span class="panel-status panel-status-quiet ml-auto">ответ 4 сек</span>
+  </div>
+
+  <div class="flex flex-col gap-2 p-4">
+    {
+      dialog.map((line) => (
+        <p class={`bubble ${line.from === 'bot' ? 'bubble-bot' : 'bubble-client'}`}>{line.text}</p>
+      ))
+    }
+  </div>
+</div>
