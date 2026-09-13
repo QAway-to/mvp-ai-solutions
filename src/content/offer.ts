@@ -297,7 +297,7 @@ export const pricing: readonly PricingTier[] = [
   },
   {
     name: 'Прототип',
-    price: '$900',
+    price: '$1 500',
     priceNote: 'от, за одно решение',
     text: 'Одно работающее решение на ваших данных за 5–10 дней.',
     features: [
@@ -312,7 +312,7 @@ export const pricing: readonly PricingTier[] = [
   },
   {
     name: 'Внедрение под ключ',
-    price: '$2 500',
+    price: '$5 000',
     priceNote: 'от, за проект',
     text: 'Решение в боевой эксплуатации, интегрированное с вашими системами.',
     features: [
